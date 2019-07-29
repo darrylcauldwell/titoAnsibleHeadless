@@ -25,9 +25,8 @@ resources:
       cloudConfig: |
         #cloud-config
         runcmd:
-        - echo "TITO-SQL='${resource.db-vm.networks[0].address}'" > /etc/environment
         - wget ${input.web-play} -O /etc/ansible/main.yaml
-        - ansible-playbook -v /etc/ansible/main.yaml
+        - ansible-playbook -v /etc/ansible/main.yaml --extra-vars "SQLSERVER='${resource.db-vm.networks[0].address}'"
       image: potterCentOS76
       flavor: potterSmall
       remoteAccess:
