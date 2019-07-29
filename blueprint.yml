@@ -1,0 +1,64 @@
+name: ansibleHeadless
+inputs:
+  env:
+    type: string
+    enum:
+      - 'cloud:potterVsphere'
+    default: 'cloud:potterVsphere'
+    title: Environment
+    description: Target Environment
+  db-play:
+    type: string
+    title: Database playbook URL
+    description: URL of Ansible playbook for database
+    default: 'https://raw.githubusercontent.com/darrylcauldwell/titoAnsibleHeadless/master/db.yml'
+  web-play:
+    type: string
+    title: Web playbook URL
+    description: URL of Ansible playbook for web
+    default: 'https://raw.githubusercontent.com/darrylcauldwell/titoAnsibleHeadless/master/web.yml'
+resources:
+  web-vm:
+    type: Cloud.Machine
+    properties:
+      name: web
+      cloudConfig: |
+        #cloud-config
+        runcmd:
+        - echo "TITO-SQL='${resource.db-vm.networks[0].address}'" > /etc/environment
+        - wget ${input.web-play} -O /etc/ansible/main.yaml
+        - ansible-playbook -v /etc/ansible/main.yaml
+      image: potterCentOS76
+      flavor: potterSmall
+      remoteAccess:
+        authentication: usernamePassword
+      constraints:
+        - tag: '${input.env}'
+      networks:
+        - name: '${resource.net.name}'
+          network: '${resource.net.id}'
+  db-vm:
+    type: Cloud.Machine
+    properties:
+      name: db
+      cloudConfig: |
+        #cloud-config
+        runcmd:
+        - wget ${input.db-play} -O /etc/ansible/main.yaml
+        - ansible-playbook -v /etc/ansible/main.yaml
+      image: potterCentOS76
+      flavor: potterSmall
+      remoteAccess:
+        authentication: usernamePassword
+      constraints:
+        - tag: '${input.env}'
+      networks:
+        - name: '${resource.net.name}'
+          network: '${resource.net.id}'
+  net:
+    type: Cloud.Network
+    properties:
+      name: potterPublic
+      networkType: existing
+      constraints:
+        - tag: '${input.env}'
