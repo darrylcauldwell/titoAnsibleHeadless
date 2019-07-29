@@ -44,6 +44,7 @@ resources:
       name: db
       cloudConfig: |
         #cloud-config
+        output: {all: '| tee -a /var/log/cloud-init-output.log'}
         runcmd:
         - wget ${input.db-play} -O /etc/ansible/main.yaml
         - ansible-playbook -v /etc/ansible/main.yaml
