@@ -1,3 +1,4 @@
+formatVersion: 1
 name: ansibleHeadless
 inputs:
   env:
@@ -24,6 +25,7 @@ resources:
       name: web
       cloudConfig: |
         #cloud-config
+        output: {all: '| tee -a /var/log/cloud-init-output.log'}
         runcmd:
         - wget ${input.web-play} -O /etc/ansible/main.yaml
         - ansible-playbook -v /etc/ansible/main.yaml --extra-vars "SQLSERVER='${resource.db-vm.networks[0].address}'"
