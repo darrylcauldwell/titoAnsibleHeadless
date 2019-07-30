@@ -49,17 +49,12 @@ vi /etc/cloud/cloud.cfg
 disable_vmware_customization: false
 ```
 
-I then follow a mix of steps in KB and Ubuntu bug report to add dbus socket dependancy to VMware tools.
+As some processes power VM with disconnected network this can delay change network config from `auto ens34` to `allow-hotplug en34`
 
 ```
-vi /usr/lib/tmpfiles.d/tmp.conf
+vi /etc/network/interfaces
 
-#D /tmp 1777 root root -
-
-vi /lib/systemd/system/open-vm-tools.service
-
-[Unit]
-After=dbus.socket
+allow-hotplug ens34
 ```
 
 Then clean and shutdown
