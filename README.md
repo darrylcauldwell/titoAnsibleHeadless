@@ -44,7 +44,7 @@ apt -y install cloud-init
 Follow steps in Ubunuty bug report to force to use cloud-init not perl scripts
 
 ```
-vi /etc/cloud.cfg
+vi /etc/cloud/cloud.cfg
 
 disable_vmware_customization: false
 ```
