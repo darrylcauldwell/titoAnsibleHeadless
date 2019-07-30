@@ -35,10 +35,18 @@ vi /etc/ssh/sshd_config
 ensure PermitRootLogin yes
 ```
 
-I then do the normal cloud init install.
+Then do the normal cloud init install.
 
 ```
 apt -y install cloud-init
+```
+
+Follow steps in Ubunuty bug report to force to use cloud-init not perl scripts
+
+```
+vi /etc/cloud.cfg
+
+disable_vmware_customization: false
 ```
 
 I then follow a mix of steps in KB and Ubuntu bug report to add dbus socket dependancy to VMware tools.
