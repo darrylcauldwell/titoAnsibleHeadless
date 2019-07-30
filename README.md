@@ -41,6 +41,12 @@ Then do the normal cloud init install.
 apt -y install cloud-init
 ```
 
+Reconfigure cloud-init to only run OVF.
+
+```bash
+dpkg-reconfigure cloud-init
+```
+
 Follow [these steps](https://kb.vmware.com/s/article/59557) to force to use cloud-init 
 
 ```
