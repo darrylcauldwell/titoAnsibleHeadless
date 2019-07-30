@@ -47,11 +47,6 @@ Follow [these steps](https://kb.vmware.com/s/article/59557) to force to use clou
 vi /etc/cloud/cloud.cfg
 
 disable_vmware_customization: false
-
-and 
-
-#network:
-#  config: disabled
 ```
 
 I then follow a mix of steps in KB and Ubuntu bug report to add dbus socket dependancy to VMware tools.
@@ -65,4 +60,11 @@ vi /lib/systemd/system/open-vm-tools.service
 
 [Unit]
 After=dbus.socket
+```
+
+Then clean and shutdown
+
+```
+cloud-init clean
+shutdown -h 0
 ```
