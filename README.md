@@ -41,12 +41,17 @@ Then do the normal cloud init install.
 apt -y install cloud-init
 ```
 
-Follow steps in Ubunuty bug report to force to use cloud-init not perl scripts
+Follow [these steps](https://kb.vmware.com/s/article/59557) to force to use cloud-init 
 
 ```
 vi /etc/cloud/cloud.cfg
 
 disable_vmware_customization: false
+
+and 
+
+#network:
+#  config: disabled
 ```
 
 I then follow a mix of steps in KB and Ubuntu bug report to add dbus socket dependancy to VMware tools.
