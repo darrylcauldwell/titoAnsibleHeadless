@@ -41,7 +41,7 @@ I then do the normal cloud init install.
 apt -y install cloud-init
 ```
 
-I then follow a mix of steps in KB and Ubunuty bug report.
+I then follow a mix of steps in KB and Ubuntu bug report to add dbus socket dependancy to VMware tools.
 
 ```
 vi /usr/lib/tmpfiles.d/tmp.conf
