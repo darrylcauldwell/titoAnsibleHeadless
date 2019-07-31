@@ -1,5 +1,7 @@
 This repository contains two Ansible playbooks which can be used to install the [Time Tracking Overview (TiTO) application](https://github.com/vmeoc/Tito).
 
+It also contains a VMware Cloud Automation Services blueprint which builds two VMs with Ansible installed. The blueprint then instructs each VM to pull and execute the correct playbooks to install the application to the correct tier.
+
 ## Cloud Assembly - Cloud Zone Setup
 
 Deploy a cloud proxy appliance to vSphere environment (Infrastructure > Connections > Cloud Proxies)
