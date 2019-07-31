@@ -1,10 +1,26 @@
 This repository contains two Ansible playbooks which can be used to install the [Time Tracking Overview (TiTO) application](https://github.com/vmeoc/Tito).
 
-## Template Creation
+## Cloud Assembly - Cloud Zone Setup
 
-These playbooks are written to be used on both CentOS 7.6 and Ubuntu 16.04.6 VM templates. As Ansible is used on every VM I included this in the template and as this is for demonstration purposes also disabled the guest firewall. To create the template I used the following commands to an clean VM.
+Deploy a cloud proxy appliance to vSphere environment (Infrastructure > Connections > Cloud Proxies)
+
+Create the following tags (Infrastructure > Configure > Tags)
+
+Key | Value
+--- | ---
+cloud | vsphere
+env | home-dc
+net | home-net
+  
+Create a vCenter Cloud Zone (Infrastructure > Connections > Cloud Zone) the proxy deployed previously will communicate with vCenter.  Applying the 'cloud:vsphere' and 'env:home-dc' Capability Tag to the Cloud Zone allows the blueprint to filter and select the correct Cloud Zone to deploy.
+
+## vSphere Template Creation
+
+These playbooks are written to be used on both CentOS 7.6 and Ubuntu 16.04.6 VM templates. Cloud-init is used by Cloud Assembly to perform its configuration so this is required in the template. For this usecase as Ansible is used on every VM I included this and disabled the guest firewall in the templates. 
 
 ### CentOS 7.6
+
+I create a VM with 2x CPU and 4GB RAM map the ISO as CDROM boot and run the following commands.
 
 ```bash
 yum update
@@ -69,3 +85,26 @@ Then clean and shutdown
 cloud-init clean
 shutdown -h 0
 ```
+
+## Create Image Mapping
+
+Once the templates are created in vSphere we must poll vCenter to sync these new templates to Cloud Assembly (Infrastructure > Connections > Cloud Zone > Sync Images).
+
+We can now create an image mapping (Infrastructure > Configuration > Image Mappings). In the example blueprint I use the image mapping names 'ansibleCentOS76' and 'ansibleUbuntu1804'.
+
+## Create Flavor Mapping
+
+We can now create an flavor mapping (Infrastructure > Configuration > Flavor Mappings). In the example blueprint I use 2CPU and 4GB RAM and use the flavor mapping name 'ansibleMedium'.
+
+## Create Network Profile
+
+We can now create an network mapping (Infrastructure > Configuration > Network Profile). In the example blueprint I use the network profile mapping tag 'net:home-net' and map profile to a VSS Portgroup which has DHCP enabled and can route directly to internet.
+
+## Create Cloud Assembly Project
+
+We can now create a Project and associate this with the Cloud Zone (Infrastructure > Configuration > Projects).
+
+## Create Blueprint
+
+We can now create a Blueprint called 'ansibleHeadlessTito' and copy in the contents of the blueprint.yml from this repository.
+
