@@ -110,3 +110,6 @@ We can now create a Project and associate this with the Cloud Zone (Infrastructu
 
 We can now create a Blueprint called 'ansibleHeadlessTito' and copy in the contents of the blueprint.yml from this repository.
 
+## Deployment
+
+Once the blueprint is deployed it should have created two VMs if you browse to the IP of the web server you should be able to use the TiTO application.
