@@ -4,9 +4,9 @@ It also contains a VMware Cloud Automation Services blueprint which builds two V
 
 ## Cloud Assembly - Cloud Zone Setup
 
-Deploy a cloud proxy appliance to vSphere environment (Infrastructure > Connections > Cloud Proxies)
+1. Deploy a cloud proxy appliance to vSphere environment (Infrastructure > Connections > Cloud Proxies)
 
-Create the following tags (Infrastructure > Configure > Tags)
+2. Create the following tags (Infrastructure > Configure > Tags)
 
 Key | Value
 --- | ---
@@ -14,7 +14,7 @@ cloud | vsphere
 env | home-dc
 net | home-net
   
-Create a vCenter Cloud Zone (Infrastructure > Connections > Cloud Zone) the proxy deployed previously will communicate with vCenter.  Applying the 'cloud:vsphere' and 'env:home-dc' Capability Tag to the Cloud Zone allows the blueprint to filter and select the correct Cloud Zone to deploy.
+3. Create a vCenter Cloud Zone (Infrastructure > Connections > Cloud Zone) the proxy deployed previously will communicate with vCenter.  Applying the 'cloud:vsphere' and 'env:home-dc' Capability Tag to the Cloud Zone allows the blueprint to filter and select the correct Cloud Zone to deploy.
 
 ## vSphere Template Creation
 
@@ -41,7 +41,7 @@ shutdown -h 0
 ** The steps in blog post do not appear to give a usable CAS template VM.  When attempting to deploy blueprint the deployment hangs, it appears as though the VM guest customization does not run as the VM network doesn't get connected.
 
 
-I think the issue is related to [this bug](https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/1793715) which is behing [this kb article](https://kb.vmware.com/s/article/56409).
+I think the issue is related to [this bug](https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/1793715) which is explained [this kb article](https://kb.vmware.com/s/article/56409).
 
 In template we should enable root access as if cloud-init fails ubuntu user cannot logon so I enable root SSH for troubleshooting.
 
@@ -100,7 +100,7 @@ We can now create an flavor mapping (Infrastructure > Configuration > Flavor Map
 
 ## Create Network Profile
 
-We can now create an network mapping (Infrastructure > Configuration > Network Profile). In the example blueprint I use the network profile mapping tag 'net:home-net' and map profile to a VSS Portgroup which has DHCP enabled and can route directly to internet.
+We can now create an network mapping (Infrastructure > Configuration > Network Profile). In the example blueprint, I use the network profile mapping tag 'net:home-net' and map profile to a VSS port group which has DHCP enabled and can route directly to the Internet.
 
 ## Create Cloud Assembly Project
 
@@ -112,4 +112,4 @@ We can now create a Blueprint called 'ansibleHeadlessTito' and copy in the conte
 
 ## Deployment
 
-Once the blueprint is deployed it should have created two VMs if you browse to the IP of the web server you should be able to use the TiTO application.
+Once the blueprint is deployed it should have created two VMs. If you browse to the IP of the web server you should be able to use the TiTO application.
