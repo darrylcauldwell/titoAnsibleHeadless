@@ -1,0 +1,97 @@
+---
+- hosts:
+    localhost
+  become: yes
+  become_method: sudo
+  gather_facts: true
+  vars:
+    root_db_password: Tito2016
+  tasks:
+      - name: Ensure SELinux is disabled
+        lineinfile:
+          path: /etc/selinux/config
+          regexp: '^SELINUX='
+          line: SELINUX=disabled
+        when: ansible_facts['os_family'] == "CentOS"
+     
+      - name: Install MySQL 5.7 repo
+        yum:
+          name: http://dev.mysql.com/get/mysql57-community-release-el7-8.noarch.rpm
+          state: present
+        when: ansible_facts['os_family'] == "CentOS"
+
+      - name: Install MySQL server
+        yum:
+          name: mysql-server
+          state: present
+        when: ansible_facts['os_family'] == "CentOS"
+          
+      - name: Start service mysqld
+        service:
+          name: mysqld
+          state: started
+        when: ansible_facts['os_family'] == "CentOS"
+
+      - name: Allow simple MySQL password
+        shell: mysql -u root -p$(cat /var/log/mysqld.log | grep "temporary password" | rev | cut -d " " -f 1 | rev) -e "SET GLOBAL validate_password_policy=LOW;" --connect-expired-password
+        when: ansible_facts['os_family'] == "CentOS"
+
+      - name: Reset the root@localhost password
+        shell: mysql -u root -p$(cat /var/log/mysqld.log | grep "temporary password" | rev | cut -d " " -f 1 | rev) -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ root_db_password }}';" --connect-expired-password
+        when: ansible_facts['os_family'] == "CentOS"
+
+      - name: Set MySQL root password before installing
+        debconf: name='mysql-server' question='mysql-server/root_password' value='{{root_db_password | quote}}' vtype='password'
+        when: ansible_facts['os_family'] == "Debian"
+
+      - name: Confirm MySQL root password before installing
+        debconf: name='mysql-server' question='mysql-server/root_password_again' value='{{root_db_password | quote}}' vtype='password'
+        when: ansible_facts['os_family'] == "Debian"
+
+      - name: Install MySQL
+        shell: apt-get -y install mysql-server
+        when: ansible_facts['os_family'] == "Debian"
+        
+      - name: Install MySQL client
+        package:
+          name: mysql
+          state: present
+        when: ansible_facts['os_family'] == "CentOS"
+
+      - name: Configure MySQL client
+        copy:
+          dest: "~/.my.cnf"
+          content: |
+            [mysql]
+            user = 'root'
+            password = '{{ root_db_password }}'
+            
+      - name: Install python pip
+        package:
+          name: python-pip
+          state: present
+
+      - name: Install PyMySQL
+        pip:
+          name: PyMySQL
+          state: present
+
+      - name: Create TitoDB database
+        mysql_db:
+          name: TitoDB
+          state: present
+          login_user: root
+          login_password: '{{ root_db_password }}'
+        
+      - name: Create DB setup file
+        copy:
+          dest: "/tmp/Tito.sql"
+          content: |
+            CREATE TABLE TitoTable (id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, home VARCHAR(50) NOT NULL, work VARCHAR(50) NOT NULL, hour_home_departure VARCHAR(50) NOT NULL, hour_work_departure VARCHAR(50) NOT NULL)
+      - name: Create TitoDB TitoTable
+        mysql_db:
+          name: TitoDB
+          state: import
+          target: /tmp/Tito.sql
+          login_user: root
+          login_password: '{{ root_db_password }}'

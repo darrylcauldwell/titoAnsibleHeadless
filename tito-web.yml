@@ -1,0 +1,125 @@
+---
+- hosts:
+    localhost
+  become: yes
+  become_method: sudo
+  vars:
+    mapsapikey: AIzaSyCrpIQtxT14_s_DcjAQwUa5r1p1IaTO2eQ
+  tasks:
+      - name: Install apache package
+        yum:
+          name: httpd
+          state: present
+        when: ansible_facts['os_family'] == "CentOS"
+          
+      - name: Install apache package
+        apt:
+          name: apache2
+          state: present
+        when: ansible_facts['os_family'] == "Debian"
+
+      - name: Install php package
+        package:
+          name: php
+          state: present
+
+      - name: Install php curl package
+        package:
+          name: php-curl 
+          state: present
+          
+      - name: Install php-sql package
+        package:
+          name: php-mysql
+          state: present
+          
+      - name: Install git package
+        package:
+          name: git
+          state: present
+      
+      - name: Start service httpd, if not started
+        service:
+          name: httpd
+          state: started
+        when: ansible_facts['os_family'] == "CentOS"
+
+      - name: Start service apache2, if not started
+        service:
+          name: apache2
+          state: started
+        when: ansible_facts['os_family'] == "Debian"
+
+      - name: Ensure SELinux is disabled
+        lineinfile:
+          path: /etc/selinux/config
+          regexp: '^SELINUX='
+          line: SELINUX=disabled
+        when: ansible_facts['os_family'] == "CentOS"
+
+      - name: Remove index.html so /var/www/html is empty
+        file:
+          path: /var/www/html/index.html
+          state: absent
+        when: ansible_facts['os_family'] == "Debian"
+
+      - name: Clone tito git repository
+        git:
+          repo: https://github.com/vmeoc/Tito
+          dest: /var/www/html
+          clone: yes
+          update: yes
+          force: yes
+          
+      - name: Change Apache default page to index.php
+        copy:
+          dest: "/var/www/html/.htaccess"
+          content: "DirectoryIndex index.php"         
+
+      - name: Set API gateway in index.php
+        replace:
+          path: /var/www/html/index.php
+          regexp: 'API_GW'
+          replace: "{{ mapsapikey }}"
+            
+      - name: Insert lines in HTTPD configuration file to ensure PHP is enabled and environment variable set
+        blockinfile:
+          path: /etc/httpd/conf/httpd.conf
+          block: |
+            LoadModule php5_module modules/libphp5.so
+            <IfModule env_module>
+               SetEnv TITO-SQL $SQLSERVER
+            </IfModule>
+        when: ansible_facts['os_family'] == "CentOS"  
+
+      - name: Install HTML embedded scripting language (Apache 2 module)
+        apt:
+          name: libapache2-mod-php
+          state: present
+        when: ansible_facts['os_family'] == "Debian"
+            
+      - name: Insert lines in PHP.ini configuration file to set default timezone
+        blockinfile:
+          path: /etc/php.ini
+          block: |
+            date.timezone = Europe/London
+        when: ansible_facts['os_family'] == "CentOS"
+
+      - name: Insert lines in PHP.ini configuration file to set default timezone
+        blockinfile:
+          path: /etc/php/7.0/apache2/php.ini
+          block: |
+            date.timezone = Europe/London
+        when: ansible_facts['os_family'] == "Debian"
+            
+      - name: Restart service httpd to pickup httpd.conf and php.ini changes
+        service:
+          name: httpd
+          state: restarted
+        when: ansible_facts['os_family'] == "CentOS"
+
+      - name: Restart service apache2 to pickup httpd.conf and php.ini changes
+        service:
+          name: apache2
+          state: restarted
+        when: ansible_facts['os_family'] == "Debian"      

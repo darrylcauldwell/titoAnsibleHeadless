@@ -1,4 +1,6 @@
-This repository contains two Ansible playbooks which can be used to install the [Time Tracking Overview (TiTO) application](https://github.com/vmeoc/Tito).
+# TiTO Ansible Headless
+
+This repository contains two [Ansible playbooks](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) that can be used to install the [Time Tracking Overview (TiTO) application](https://github.com/vmeoc/Tito). The TiTO application has a simple two tier architecture, the frontend uses Apache to host a PHP website and the backend is a MySQL database.
 
 It also contains a VMware Cloud Automation Services blueprint which builds two VMs with Ansible installed. The blueprint then instructs each VM to pull and execute the correct playbooks to install the application to the correct tier.
 
